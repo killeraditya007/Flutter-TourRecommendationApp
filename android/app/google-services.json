@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "918296015730",
+    "project_id": "corizo-flutter-tourapp",
+    "storage_bucket": "corizo-flutter-tourapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918296015730:android:0c1a7dea766af7f1c723eb",
+        "android_client_info": {
+          "package_name": "com.corizo.flutterproject.tour_recommendation_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQi1EDlu60PCJa0AhRKjiMx_r_x0VJSkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
