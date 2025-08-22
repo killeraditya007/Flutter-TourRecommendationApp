@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tour_recommendation_app/dashboardscreen.dart';
 import 'package:tour_recommendation_app/login_page.dart';
-import 'package:tour_recommendation_app/profile_screen.dart';
-import 'package:tour_recommendation_app/signup_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
