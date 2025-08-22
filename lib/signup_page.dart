@@ -150,7 +150,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         style: TextStyle(color: Colors.black, fontSize: 16)),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(context, LoginPage.route());
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginPage())
+                        );
                       },
                       child: Text("Sign in",
                           style: TextStyle(

@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
     "tag": "POPULAR",
   },
   {
-    "imageUrl": "https://cdn.fstoppers.com/styles/full/s3/media/2017/10/12/macs_chair_1_of_2.jpg",
+    "imageUrl": "https://4kwallpapers.com/images/walls/thumbs_3t/23615.jpg",
     "title": "Sydney Opera Tour",
     "location": "Sydney, Australia",
     "price": "\$729",
@@ -105,7 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _signOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override

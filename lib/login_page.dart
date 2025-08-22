@@ -48,9 +48,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-      ),
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
@@ -187,7 +184,10 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(color: Colors.black,fontSize: 16)),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(context, SignUpPage.route());
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SignUpPage())
+                          );
                         },
                         child: const Text(
                           "Sign up",

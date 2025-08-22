@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:tour_recommendation_app/dashboardscreen.dart';
 import 'package:tour_recommendation_app/login_page.dart';
 import 'package:tour_recommendation_app/profile_screen.dart';
+import 'package:tour_recommendation_app/signup_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -21,11 +22,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/home': (context) => const DashboardScreen(),
-      },
       title: 'Tour Recommendation',
       theme: ThemeData(
         fontFamily: 'Cera Pro',
@@ -57,19 +53,14 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
+        stream: FirebaseAuth.instance.userChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            print("check 3");
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasData) {
-            print("check 1");
-            return const ProfileScreen();
-          }else{
-            print("check 2");
+            return const DashboardScreen();
+          } else {
             return const LoginPage();
           }
         },
@@ -77,3 +68,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
