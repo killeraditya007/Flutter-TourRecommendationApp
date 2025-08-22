@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:tour_recommendation_app/login_page.dart';
 
 class SignUpPage extends StatefulWidget {
-  static route() => MaterialPageRoute(
-        builder: (context) => const SignUpPage(),
-      );
   const SignUpPage({super.key});
 
   @override
@@ -28,12 +25,11 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<void> createUserWithEmailAndPassword() async {
     try {
-      final userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      print(userCredential.toString());
+      await FirebaseAuth.instance.currentUser?.reload();
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
-  static route() => MaterialPageRoute(
-        builder: (context) => const ProfileScreen(),
-      );
   const ProfileScreen({super.key});
 
   @override
