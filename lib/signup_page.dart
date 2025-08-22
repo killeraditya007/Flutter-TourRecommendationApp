@@ -14,16 +14,15 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
 
   @override
   void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -31,18 +30,24 @@ class _SignUpPageState extends State<SignUpPage> {
     try {
       final userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
-      print(userCredential.user?.uid);
+      print(userCredential.toString());
     } on FirebaseAuthException catch (e) {
-      print(e.message);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: ${e.message}"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: Colors.white54,
+    return Scaffold(backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(20),
@@ -50,15 +55,13 @@ class _SignUpPageState extends State<SignUpPage> {
             key: _formKey,
             child: Column(
               children: [
-                // Avatar Icon
+                SizedBox(height: 10),
                 CircleAvatar(
                   radius: 40,
                   backgroundColor: Colors.black,
                   child: Icon(Icons.person_add, size: 40, color: Colors.white),
                 ),
                 SizedBox(height: 20),
-
-                // Title
                 Text(
                   "Create Account",
                   style: TextStyle(
@@ -68,9 +71,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 SizedBox(height: 30),
-
-                // Email Field
                 TextFormField(
+                  controller: _emailController,
                   style: TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: "Email",
@@ -79,11 +81,16 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Email cannot be empty';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 15),
-
-                // Password Field
                 TextFormField(
+                  controller: _passwordController,
                   obscureText: !_isPasswordVisible,
                   style: TextStyle(color: Colors.black),
                   decoration: InputDecoration(
@@ -106,6 +113,12 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+                  validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Password cannot be empty';
+                      }
+                      return null;
+                    },
                 ),
                 SizedBox(height: 20),
                 SizedBox(
@@ -118,9 +131,9 @@ class _SignUpPageState extends State<SignUpPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        // handle sign up
+                        await createUserWithEmailAndPassword();
                       }
                     },
                     child: Text(
@@ -130,8 +143,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 SizedBox(height: 20),
-
-                // Already have an account
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

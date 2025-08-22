@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:tour_recommendation_app/home_page.dart';
-import 'package:tour_recommendation_app/signup_page.dart';
+import 'package:tour_recommendation_app/dashboardscreen.dart';
+import 'package:tour_recommendation_app/login_page.dart';
+import 'package:tour_recommendation_app/profile_screen.dart';
 import 'firebase_options.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +21,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => const DashboardScreen(),
+      },
       title: 'Tour Recommendation',
       theme: ThemeData(
         fontFamily: 'Cera Pro',
@@ -51,18 +56,22 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: StreamBuilder(
+      home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
+            print("check 3");
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
-          if (snapshot.data != null) {
-            return const MyHomePage();
+          if (snapshot.hasData) {
+            print("check 1");
+            return const ProfileScreen();
+          }else{
+            print("check 2");
+            return const LoginPage();
           }
-          return const SignUpPage();
         },
       ),
     );

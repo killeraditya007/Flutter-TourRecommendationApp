@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tour_recommendation_app/signup_page.dart';
 
@@ -12,16 +13,36 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isPasswordVisible = false;
   bool rememberMe = false;
 
   @override
   void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> loginUserWithEmailAndPassword() async {
+    try {
+      final userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      print(userCredential.toString());      
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: ${e.message}"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -30,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
       ),
-      backgroundColor: Colors.white54,
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -54,13 +75,9 @@ class _LoginPageState extends State<LoginPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 15),
-                  const Text(
-                    "Enter your credentials to continue",
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-                  SizedBox(height: 24),
+                  SizedBox(height: 30),
                   TextFormField(
+                    controller: _emailController,
                     style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       hintText: "you@example.com",
@@ -69,25 +86,46 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Email cannot be empty';
+                      }
+                      return null;
+                    },
                   ),
                   SizedBox(height: 15),
-
-                  // Password Field
                   TextFormField(
+                    controller: _passwordController,
                     style: const TextStyle(color: Colors.black),
-                    obscureText: true,
+                    obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
                       hintText: "Password",
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: const Icon(Icons.visibility_off,
-                          color: Colors.black),
+                      prefixIcon: Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Password cannot be empty';
+                      }
+                      return null;
+                    },
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -100,15 +138,19 @@ class _LoginPageState extends State<LoginPage> {
                                 rememberMe = val ?? false;
                               });
                             },
-                            checkColor: Colors.black,
+                            checkColor: Colors.white,
                             activeColor: Colors.black,
                           ),
                           const Text("Remember me",
-                              style: TextStyle(color: Colors.white)),
+                              style: TextStyle(color: Colors.black)),
                         ],
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if(_formKey.currentState!.validate()){
+                            
+                          }
+                        },
                         child: const Text(
                           "Forgot password?",
                           style: TextStyle(color: Colors.blueAccent),
@@ -116,10 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                       )
                     ],
                   ),
-
-                  const SizedBox(height: 12),
-
-                  // Sign In Button
+                  SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -130,9 +169,9 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      onPressed: () {
+                      onPressed: () async{
                         if (_formKey.currentState!.validate()) {
-                          // Handle sign in
+                          await loginUserWithEmailAndPassword();
                         }
                       },
                       child: const Text("SIGN IN",
@@ -140,9 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                               TextStyle(color: Colors.white, fontSize: 16)),
                     ),
                   ),
-
-                  const SizedBox(height: 15),
-
+                  SizedBox(height: 15),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
