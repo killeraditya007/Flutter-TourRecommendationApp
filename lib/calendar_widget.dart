@@ -25,6 +25,7 @@ class _TourCalendarWidgetState extends State<TourCalendarWidget> {
       setState(() {
         _selectedDate = startDate;
         _highlightedDates = tourDates;
+        print(_selectedDate);
       });
     }
   }
