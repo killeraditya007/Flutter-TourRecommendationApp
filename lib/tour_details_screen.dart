@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tour_recommendation_app/booking_modal.dart';
+import 'package:tour_recommendation_app/calendar_widget.dart';
 
 class TourDetailsScreen extends StatefulWidget {
   final dynamic tour;
-  const TourDetailsScreen({super.key, required this.tour});
+  const TourDetailsScreen(this.tour, {super.key});
 
   @override
   State<TourDetailsScreen> createState() => _TourDetailsScreenState();
@@ -11,47 +14,6 @@ class TourDetailsScreen extends StatefulWidget {
 class _TourDetailsScreenState extends State<TourDetailsScreen> {
   bool isFavorite = false;
   late dynamic tour;
-
-  final List<Map<String, String>> itinerary = [
-    {
-      "day": "Day 1: Arrival & Welcome",
-      "details": "Airport pickup, check-in at luxury resort, welcome dinner on the beach."
-    },
-    {
-      "day": "Day 2: Ubud Exploration",
-      "details": "Visit Monkey Forest, Ubud Palace, and local art markets."
-    },
-    {
-      "day": "Day 3: Temple Tour",
-      "details": "Visit Tanah Lot, Uluwatu Temple, and enjoy a traditional Kecak dance."
-    },
-    {
-      "day": "Day 4: Beach Day",
-      "details": "Relax at Nusa Dua beach, water activities, seafood dinner.",
-    },
-  ];
-
-  final List<Map<String, dynamic>> reviews = [
-    {
-      "name": "Sarah Johnson",
-      "date": "June 2023",
-      "rating": 5,
-      "review":
-          "This tour exceeded all my expectations! The guides were knowledgeable and friendly. The beaches were pristine and the cultural experiences were authentic.",
-      "imageUrl":
-          "https://randomuser.me/api/portraits/women/44.jpg",
-    },
-    {
-      "name": "Michael Chen",
-      "date": "May 2023",
-      "rating": 4,
-      "review":
-          "Great experience overall. The volcano trek was challenging but worth it for the sunrise views. The only downside was that some days felt a bit rushed.",
-      "imageUrl":
-          "https://randomuser.me/api/portraits/men/32.jpg",
-    },
-  ];
-
   
   @override
   void initState() {
@@ -61,39 +23,14 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(tour['rating']);
-    print(4<tour['rating']);
     return Scaffold(
-      appBar: AppBar(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () {},
-            child: const Text(
-              "Book Now",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-      ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
             expandedHeight: 250,
             flexibleSpace: FlexibleSpaceBar(
-              background: Image.network(
-                tour['imageUrl'],
+              background: Image.asset('assets/images/${tour['imageUrl']}',
                 fit: BoxFit.cover,
               ),
             ),
@@ -124,64 +61,44 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                         child: Text(
                           tour['title'],
                           style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Text(
-                        tour['price'],
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[800],
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            maxLines: 2,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
 
-                  // Location
+                  Padding(
+                    padding: const EdgeInsets.only(left: 0, right: 8),
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_on, size: 18, color: Colors.grey),
+                        Text(
+                          tour['location'],
+                          style: TextStyle(
+                            color: Colors.grey
+                          )
+                        ),
+                        Spacer(),
+                        Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                        SizedBox(width: 4),
+                        Text("${tour['itinerary'].length} days"),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 18, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text(tour['location'],
-                          style: TextStyle(color: Colors.grey)),
-                    ],
+                      Text("Categories: ",style: TextStyle(fontWeight: FontWeight.bold)),
+                      ...tour['categories'].map<Widget>((category) {
+                        return Text("$category, ");
+                      }),
+                    ]
                   ),
-                  const SizedBox(height: 8),
-
-                  // Rating
-                  Row(
-                    children: List.generate(5, (index) {
-                      return Icon(
-                        index+1 < tour['rating']
-                            ? Icons.star
-                            : Icons.star_half, // 4.5 rating
-                        color: Colors.orange,
-                        size: 20,
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Info Row
-                  Row(
-                    children: const [
-                      Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text("7 days"),
-                      SizedBox(width: 16),
-                      Icon(Icons.people, size: 16, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text("Max 12 people"),
-                      SizedBox(width: 16),
-                      Icon(Icons.language, size: 16, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text("English, Spanish"),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
+                  const SizedBox(height: 4),
                   // TabBar
                   DefaultTabController(
                     length: 4,
@@ -201,20 +118,18 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                           ],
                         ),
                         SizedBox(
-                          height: 250,
+                          height: 265,
                           child: TabBarView(
                             children: [
                               // Overview
                               SingleChildScrollView(
                                 padding: const EdgeInsets.all(8),
-                                child: const Text(
-                                  "Experience the ultimate tropical getaway with our Bali Paradise Tour. "
-                                  "This 7-day adventure takes you through the most stunning locations in Bali, "
-                                  "from pristine beaches to lush rice terraces and ancient temples. "
-                                  "You'll enjoy luxury accommodations, authentic local cuisine, and unforgettable cultural experiences.",
+                                child: Text(tour['overview'],
                                   style: TextStyle(fontSize: 15),
+                                  softWrap: true,
                                 ),
                               ),
+                              
                               // Highlights
                               SingleChildScrollView(
                                 padding: const EdgeInsets.all(16),
@@ -230,84 +145,40 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                     ),
                                     const SizedBox(height: 16),
 
-                                    // Highlight Item 1
-                                    ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: Colors.blue.shade50,
-                                        child: const Icon(Icons.beach_access, color: Colors.blue),
-                                      ),
-                                      title: const Text(
-                                        "Pristine Beaches",
-                                        style: TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: const Text(
-                                        "Visit the most beautiful beaches including Kuta, Nusa Dua, and hidden gems.",
-                                      ),
-                                    ),
-
-                                    // Highlight Item 2
-                                    ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: Colors.blue.shade50,
-                                        child: const Icon(Icons.terrain, color: Colors.blue),
-                                      ),
-                                      title: const Text(
-                                        "Volcano Trekking",
-                                        style: TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: const Text(
-                                        "Sunrise trek to Mount Batur with breathtaking panoramic views.",
-                                      ),
-                                    ),
-
-                                    // Highlight Item 3
-                                    ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: Colors.blue.shade50,
-                                        child: const Icon(Icons.temple_buddhist, color: Colors.blue),
-                                      ),
-                                      title: const Text(
-                                        "Cultural Immersion",
-                                        style: TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: const Text(
-                                        "Visit ancient temples and participate in traditional Balinese ceremonies.",
-                                      ),
-                                    ),
-
-                                    // Highlight Item 4
-                                    ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: Colors.blue.shade50,
-                                        child: const Icon(Icons.restaurant, color: Colors.blue),
-                                      ),
-                                      title: const Text(
-                                        "Culinary Delights",
-                                        style: TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: const Text(
-                                        "Cooking classes and tasting authentic Balinese cuisine at local restaurants.",
-                                      ),
-                                    ),
+                                    ...tour['highlights'].map<Widget>((highlight) {
+                                      return ListTile(
+                                        leading: CircleAvatar(
+                                          backgroundColor: Colors.blue.shade50,
+                                          child: const Icon(Icons.beach_access, color: Colors.blue),
+                                        ),
+                                        title: Text(
+                                          highlight,
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                        subtitle: const Text(
+                                          "Visit the most beautiful beaches including Kuta, Nusa Dua, and hidden gems.",
+                                        ),
+                                      );
+                                    }),
                                   ],
                                 ),
                               ),
                               // Itinerary
                               SingleChildScrollView(
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(10),
                                 child: Column(
                                   children: [
                                     const Text(
                                       "Itinerary",
                                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                     ),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: 8),
                                     SizedBox(
-                                      height: 200,
+                                      height: 240,
+                                      width: 350,
                                       child: ListView.builder(
-                                        itemCount: itinerary.length,
+                                        itemCount: tour['itinerary'].length,
                                         itemBuilder: (context, index) {
-                                          final item = itinerary[index];
                                           return Row(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
@@ -315,21 +186,17 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                                 children: [
                                                   CircleAvatar(
                                                     radius: 14,
-                                                    backgroundColor: index == itinerary.length - 1
-                                                      ? Colors.grey.shade300
-                                                      : Colors.blue,
+                                                    backgroundColor: Colors.blue,
                                                     child: Text(
                                                       "${index + 1}",
                                                       style: TextStyle(
                                                         fontSize: 12,
                                                         fontWeight: FontWeight.bold,
-                                                        color: index == itinerary.length - 1
-                                                            ? Colors.grey
-                                                            : Colors.white,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                   ),
-                                                  if (index != itinerary.length - 1)
+                                                  if (index != tour['itinerary'].length - 1)
                                                     Container(
                                                       height: 40,
                                                       width: 2,
@@ -339,28 +206,35 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                               ),
                                               const SizedBox(width: 12),
                                               SizedBox(
-                                                height: 70,
+                                                height: 90,
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(
-                                                      item["day"]!,
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 16,
-                                                        color: index == itinerary.length - 1
-                                                            ? Colors.grey
-                                                            : Colors.black,
+                                                    SizedBox(
+                                                      width: 250,
+                                                      child: Text(
+                                                        tour['itinerary'][index],
+                                                        style: TextStyle(
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 14,
+                                                          color: Colors.black,
+                                                        ),
+                                                        overflow: TextOverflow.ellipsis,
+                                                        maxLines: 2,
                                                       ),
                                                     ),
                                                     const SizedBox(height: 4),
-                                                    Text(
-                                                      item["details"]!,
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: index == itinerary.length - 1
-                                                            ? Colors.grey
-                                                            : Colors.black87,
+                                                    SizedBox(
+                                                      width: 250,
+                                                      child: Text(
+                                                        "Itinerary description need to fill here.",
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.black87,
+                                                        ),
+                                                        maxLines: 2,
+                                                        softWrap: true,
+                                                        overflow: TextOverflow.ellipsis,
                                                       ),
                                                     ),
                                                     const SizedBox(height: 20),
@@ -372,29 +246,16 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                         }   
                                       )
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        // Action for "View full itinerary"
-                                      },
-                                      child: Text(
-                                        "View full itinerary ➜",
-                                        style: TextStyle(
-                                          color: Colors.blue,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    )
                                   ],
                                 ),
                               ),
                               // Reviews
                               SingleChildScrollView(
-                                padding: const EdgeInsets.all(12),
+                                // padding: const EdgeInsets.all(12),
                                 child: Column(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.all(12.0),
+                                      padding: const EdgeInsets.all(10.0),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
@@ -404,8 +265,8 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                           ),
                                           Row(
                                             children: [
-                                              const Text(
-                                                "4.5",
+                                              Text(
+                                                tour['rating'].toString(),
                                                 style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.bold,
@@ -424,14 +285,12 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height: 10,),
                                     SizedBox(
-                                      height: 400,
+                                      height: 230,
                                       child: ListView.builder(
-                                        itemCount: reviews.length,
+                                        itemCount: tour['reviews'].length,
                                         padding: const EdgeInsets.symmetric(horizontal: 12),
                                         itemBuilder: (context, index) {
-                                          final review = reviews[index];
                                           return Card(
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(12),
@@ -445,7 +304,7 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                                   Row(
                                                     children: [
                                                       CircleAvatar(
-                                                        backgroundImage: NetworkImage(review['imageUrl']),
+                                                        backgroundImage: NetworkImage("https://randomuser.me/api/portraits/women/17.jpg"),
                                                         radius: 20,
                                                       ),
                                                       const SizedBox(width: 10),
@@ -454,12 +313,12 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                                           crossAxisAlignment: CrossAxisAlignment.start,
                                                           children: [
                                                             Text(
-                                                              review['name'],
+                                                              tour['reviews'][index]['user'],
                                                               style: const TextStyle(
                                                                   fontWeight: FontWeight.bold),
                                                             ),
                                                             Text(
-                                                              review['date'],
+                                                              "June 2023",
                                                               style: const TextStyle(
                                                                   fontSize: 12, color: Colors.grey),
                                                             ),
@@ -468,7 +327,7 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                                       ),
                                                       Row(
                                                         children: List.generate(
-                                                          review['rating'],
+                                                          tour['reviews'][index]['stars'],
                                                           (index) => const Icon(
                                                             Icons.star,
                                                             color: Colors.amber,
@@ -480,7 +339,7 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                                   ),
                                                   const SizedBox(height: 12),
                                                   Text(
-                                                   review['review'],
+                                                   tour['reviews'][index]['comment'],
                                                     style: TextStyle(
                                                       fontSize: 14,
                                                       height: 1.4,
@@ -502,7 +361,81 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 80), // For space above Book Now btn
+                  // const SizedBox(height: 100), // For space above Book Now btn
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "₹${tour["price"].toString()}",
+                                style: TextStyle(
+                                  fontSize: 20,  // bigger size for price
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              TextSpan(
+                                text: " /person",
+                                style: TextStyle(
+                                  fontSize: 12,  // smaller size
+                                  color: Colors.grey, // grey color
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (context) => SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.6,
+                                child: TourCalendarWidget(tourDays: 5), // pass tour duration
+                              ),
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.calendar_month_outlined),
+                              Text("Available dates", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
+                              Icon(Icons.arrow_forward_ios, size: 16,)
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 40,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedSuperellipseBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          ),
+                          builder: (context) => BookingModal(tour['price'],tour['itinerary'].length),
+                        );
+                      },
+                      child: const Text(
+                        "Book Now",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

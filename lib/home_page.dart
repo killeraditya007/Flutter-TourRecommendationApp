@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tour_recommendation_app/tour_details_screen.dart';
+import 'package:tour_recommendation_app/tours_details.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -13,91 +14,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _searchController = TextEditingController();
   bool isSearching = false;
-
-  final List<String> categories = ["Adventure", "Historical", "Beach", "Family", "Cultural"];
-  final List<Map<String, dynamic>> tourData = [
-  {
-    "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-    "title": "Maldives Paradise",
-    "location": "Maldives",
-    "price": "\$799",
-    "rating": 4.8,
-    "tag": "HOT DEAL",
-  },
-  {
-    "imageUrl": "https://tse1.mm.bing.net/th/id/OIP.hZXvMERKcVGl8fQzrjXRHAHaEo?rs=1&pid=ImgDetMain&o=7&rm=3",
-    "title": "Swiss Alps Adventure",
-    "location": "Switzerland",
-    "price": "\$999",
-    "rating": 4.9,
-    "tag": "TRENDING",
-  },
-  {
-    "imageUrl": "https://images.unsplash.com/photo-1518684079-3c830dcef090",
-    "title": "Tokyo City Lights",
-    "location": "Tokyo, Japan",
-    "price": "\$599",
-    "rating": 4.7,
-    "tag": "POPULAR",
-  },
-  {
-    "imageUrl": "https://tse1.mm.bing.net/th/id/OIP.yWbQAE-g_8BdVbUNY7HxiQHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
-    "title": "Bali Beach Escape",
-    "location": "Bali, Indonesia",
-    "price": "\$499",
-    "rating": 4.6,
-    "tag": "TRENDING",
-  },
-  {
-    "imageUrl": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad",
-    "title": "Paris Romance",
-    "location": "Paris, France",
-    "price": "\$699",
-    "rating": 4.9,
-    "tag": "HOT",
-  },
-  {
-    "imageUrl": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-    "title": "New York Explorer",
-    "location": "New York, USA",
-    "price": "\$649",
-    "rating": 4.5,
-    "tag": "POPULAR",
-  },
-  {
-    "imageUrl": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
-    "title": "Dubai Luxury Tour",
-    "location": "Dubai, UAE",
-    "price": "\$899",
-    "rating": 4.7,
-    "tag": "LUXURY",
-  },
-  {
-    "imageUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34",
-    "title": "Santorini Getaway",
-    "location": "Santorini, Greece",
-    "price": "\$499",
-    "rating": 4.9,
-    "tag": "TRENDING",
-  },
-  {
-    "imageUrl": "https://th.bing.com/th/id/R.e36a89e2628ed8608c86280f83e726c5?rik=hVQUmkQU7Tzxpg&riu=http%3a%2f%2f10wallpaper.com%2fwallpaper%2f1920x1080%2f1209%2flondon_panorama-European_Landscape_Wallpaper_1920x1080.jpg&ehk=W%2b91WZk713L8Q5lvzZtFLlaqgHk5Dur0odq0VeVrtNY%3d&risl=&pid=ImgRaw&r=0",
-    "title": "London Classic",
-    "location": "London, UK",
-    "price": "\$579",
-    "rating": 4.4,
-    "tag": "POPULAR",
-  },
-  {
-    "imageUrl": "https://4kwallpapers.com/images/walls/thumbs_3t/23615.jpg",
-    "title": "Sydney Opera Tour",
-    "location": "Sydney, Australia",
-    "price": "\$729",
-    "rating": 4.6,
-    "tag": "TRENDING",
-  },
-];
-
 
   @override
   void initState() {
@@ -124,8 +40,6 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-        
-                /// Top Bar
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -146,28 +60,27 @@ class _MyHomePageState extends State<MyHomePage> {
                     )
                   ],
                 ),
-                SizedBox(height: 16),
-        
-                /// Search Bar
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: "Search destinations, tours...",
-                    prefixIcon: Icon(Icons.search),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
+                SizedBox(height: 10),
+                SizedBox(
+                  height: 60,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                      hintText: "Search destinations, tours...",
+                      prefixIcon: Icon(Icons.search),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
-
-                /// If user is searching → show Search Results
+      
                 if (isSearching) _buildSearchResults(),
-
-                /// Else show Default Home Screen
+      
                 if (!isSearching) _buildHomeContent(),
               ]
             ),
@@ -177,16 +90,20 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
   Widget categoryItem(IconData icon, String label, Color bgColor) {
-    return Column(
-      children: [
-        CircleAvatar(
-          backgroundColor: bgColor,
-          radius: 28,
-          child: Icon(icon, size: 28, color: Colors.black87),
-        ),
-        const SizedBox(height: 6),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ],
+    return Padding(
+      padding:  EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            backgroundColor: bgColor,
+            radius: 22,
+            child: Icon(icon, size: 28, color: Colors.black87),
+          ),
+          const SizedBox(height: 6),
+          Text(label, style: const TextStyle(fontSize: 12)),
+        ],
+      ),
     );
   }
 
@@ -215,15 +132,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 label: Text("Sort"),
               ),
             ),
-            Spacer(),
-            Text("${tourData.length} results", style: TextStyle(color: Colors.grey)),
+            Text("${toursData.length} results", style: TextStyle(color: Colors.grey)),
           ],
         ),
         SizedBox(height: 12),
       ],
     );
   }
-
 
   Widget _buildHomeContent() {
     return Column(
@@ -240,19 +155,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(color: Colors.blue, fontSize: 14)),
           ],
         ),
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            categoryItem(Icons.terrain, "Adventure", Colors.blue[100]!),
-            categoryItem(Icons.account_balance, "Historical", Colors.amber[100]!),
-            categoryItem(Icons.beach_access, "Beach", Colors.teal[100]!),
-            categoryItem(Icons.family_restroom, "Family", Colors.green[100]!),
-          ],
+        SizedBox(height: 10),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: categories.map((category) {
+              return categoryItem(category['icon'],category['category'],category['color']);
+            }).toList(),
+          )
         ),
-        const SizedBox(height: 20),
-
-        /// Popular Tours
+        SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: const [
@@ -265,27 +178,39 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(color: Colors.blue, fontSize: 14)),
           ],
         ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 400,
-          child: ListView.builder(
-            scrollDirection: Axis.vertical,
-            itemCount: tourData.length,
-            itemBuilder: (context, index) {
+        SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: toursData.map((tour) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12, left: 5, right: 5),
-                child: tourCard(tourData[index]),
+                child: tourCard(tour),
               );
-            },
-          ),
-        )
+            }).toList(),
+          )
+        ),
+        // SizedBox(
+        //   height: 455,
+        //   child: ListView.builder(
+        //     scrollDirection: Axis.vertical,
+        //     itemCount: toursData.length,
+        //     itemBuilder: (context, index) {
+        //       return Padding(
+        //         padding: const EdgeInsets.only(bottom: 12, left: 5, right: 5),
+        //         child: tourCard(toursData[index]),
+        //       );
+        //     },
+        //   ),
+        // ),
       ],
     );
   }
 
   Widget tourCard(tour) {
     return Container(
-      height: 270,
+      height: 260,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: Colors.white,
@@ -304,7 +229,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: Image.network(tour["imageUrl"],
+                child: Image.asset('assets/images/${tour['imageUrl']}',
                     height: 160, width: double.infinity, fit: BoxFit.cover),
               ),
               Positioned(
@@ -317,7 +242,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    tour["tag"],
+                    "${tour["discount"]}% OFF",
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
@@ -333,9 +258,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(tour["title"],
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    Expanded(
+                      child: Text(tour["title"],
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              ),
+                    ),
                     Row(
                       children: [
                         const Icon(Icons.star,
@@ -370,7 +300,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: tour["price"],
+                        text: "₹${tour["price"].toString()}",
                         style: TextStyle(
                           fontSize: 22,  // bigger size for price
                           fontWeight: FontWeight.bold,
@@ -398,7 +328,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           borderRadius: BorderRadius.circular(50)),
                     ),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => TourDetailsScreen(tour: tour)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => TourDetailsScreen(tour)));
                     },
                     child: const Text("Book Now", style: TextStyle( color: Colors.white ,fontWeight: FontWeight.bold),),
                   ),

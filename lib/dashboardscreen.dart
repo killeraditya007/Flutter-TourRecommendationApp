@@ -22,13 +22,13 @@ class DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.blue,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.blue,
         showSelectedLabels: true,
         showUnselectedLabels: true,
-        selectedItemColor: Colors.red,
+        selectedItemColor: Colors.white,
         unselectedItemColor: Colors.black,
         currentIndex: selectedTab,
         onTap: (index) {
