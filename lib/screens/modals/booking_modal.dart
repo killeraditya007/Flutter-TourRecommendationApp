@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:tour_recommendation_app/screens/payment_selection.dart';
 
 class BookingModal extends StatefulWidget {
-  final int adultPrice;
-  final int tourDays;
-  const BookingModal(this.adultPrice,this.tourDays, {super.key});
+  final dynamic tour;
+  const BookingModal(this.tour, {super.key});
 
   @override
   State<BookingModal> createState() => _BookingModalState();
@@ -15,6 +15,8 @@ class _BookingModalState extends State<BookingModal> {
   DateTimeRange? selectedDates;
   int adults = 1;
   int children = 0;
+  late dynamic bookingDetails;
+  late dynamic tour;
   TextEditingController specialRequestsController = TextEditingController();
   late double adultPrice;
   late double childPrice=0;
@@ -28,13 +30,42 @@ class _BookingModalState extends State<BookingModal> {
   @override
   void initState() {
     super.initState();
-    adultPrice = widget.adultPrice.toDouble();
+    tour = widget.tour;
+    adultPrice = widget.tour['price'].toDouble();
     childPrice = adultPrice/2;
     tourPrice = adultPrice.toDouble();
     taxes = tourPrice * 18 / 100;
     total = tourPrice + taxes + 49;
     bookingFee = 49;
-    days = widget.tourDays;
+    days = widget.tour['itinerary'].length;
+  }
+
+  void createBookingDetails(){
+    setState(() {
+      bookingDetails = {
+        'bookingId': "",
+        'status': 'Upcoming',
+        'tour': tour,
+        'tourDetails': {
+          'tourPrice': tourPrice,
+          'taxes': taxes,
+          'total': total,
+          'tripDate': {
+            'startDate': selectedDates!.start,
+            'endDate': selectedDates!.end
+          },
+          'travelers': {
+            'adult': adults,
+            'children': children
+          },
+        },
+        'paymentDetails': {
+          'mode': "",
+          'bookingId': "",
+          'txnId': "",
+        },
+      };
+    });
   }
 
   void calculateTotalPrice(){
@@ -150,7 +181,7 @@ class _BookingModalState extends State<BookingModal> {
                   children: [
                     IconButton(
                       onPressed: () {
-                        if (children > 1){
+                        if (children > 0){
                           setState(() { 
                             children--;
                             calculateTotalPrice();
@@ -190,7 +221,8 @@ class _BookingModalState extends State<BookingModal> {
               child: ElevatedButton(
                 onPressed: () {
                   if (selectedDates != null){
-                    Navigator.pop(context);
+                    createBookingDetails();
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen(bookingDetails)));
                   }else{
                     Fluttertoast.showToast(
                       msg: "Please select dates",

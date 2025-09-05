@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tour_recommendation_app/favourite_screen.dart';
-import 'package:tour_recommendation_app/home_page.dart';
-import 'package:tour_recommendation_app/profile_screen.dart';
-import 'package:tour_recommendation_app/search_screen.dart';
+import 'package:tour_recommendation_app/screens/home_page.dart';
+import 'package:tour_recommendation_app/screens/my_bookings.dart';
+import 'package:tour_recommendation_app/screens/profile_screen.dart';
+import 'package:tour_recommendation_app/screens/search_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,14 +15,20 @@ class DashboardScreenState extends State<DashboardScreen> {
   int selectedTab = 0;
   List<Widget> listOfScreens = [
     MyHomePage(),
-    SearchScreen(),
-    FavouriteScreen(),
-    ProfileScreen()
+    ExploreScreen(),
+    MyBookingsScreen(),
+    AccountScreen()
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.blue,
@@ -44,13 +50,13 @@ class DashboardScreenState extends State<DashboardScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
-            label: "Search",
-            tooltip: "Search",
+            label: "Explore",
+            tooltip: "Explore",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: "Likes",
-            tooltip: "Likes",
+            icon: Icon(Icons.luggage),
+            label: "Bookings",
+            tooltip: "Bookings",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

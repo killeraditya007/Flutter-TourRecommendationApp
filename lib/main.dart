@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:tour_recommendation_app/dashboardscreen.dart';
-import 'package:tour_recommendation_app/login_page.dart';
-import 'firebase_options.dart';
+import 'package:tour_recommendation_app/utils/dashboardscreen.dart';
+import 'package:tour_recommendation_app/screens/login_screen.dart';
+import 'services/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,11 +56,9 @@ class MyApp extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasData) {
-            print(snapshot.data?.email);
-            return const DashboardScreen();
-          } else {
-            return const LoginPage();
+            return DashboardScreen();
           }
+          return LoginScreen();
         },
       ),
     );

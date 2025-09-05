@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tour_recommendation_app/tour_details_screen.dart';
-import 'package:tour_recommendation_app/tours_details.dart';
+import 'package:tour_recommendation_app/screens/tour_details_screen.dart';
+import 'package:tour_recommendation_app/services/reusable_components.dart';
+import 'package:tour_recommendation_app/utils/reusable_components.dart';
+import 'package:tour_recommendation_app/utils/tours_details.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -11,22 +13,40 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController _searchController = TextEditingController();
-  bool isSearching = false;
+class _MyHomePageState extends State<MyHomePage> {  
+  bool isloading = true;
+  String categoryChecked = 'Default';
+  List<Map<String, dynamic>> categorisedTours = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(() {
-      setState(() {
-        isSearching = _searchController.text.isNotEmpty;
-      });
+  Future<void> getData() async{
+    final response = await FirebaseUtils.getToursData();
+    setState(() {
+      toursData = response;
+      categorisedTours = toursData;
+      isloading = false;
     });
   }
 
-  Future<void> _signOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
+  Future<void> getUserDetails() async{
+    final userDetails_ = await FirebaseUtils.getUserDetails(FirebaseAuth.instance.currentUser!.uid);
+    setState(() {
+      userDetails = userDetails_!;
+    });
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    getUserDetails();
+    if(toursData.isEmpty){
+       getData();
+    }else{
+      setState(() {
+        categorisedTours = toursData;
+        isloading=false;
+      });
+    }
+    
   }
 
   @override
@@ -46,42 +66,69 @@ class _MyHomePageState extends State<MyHomePage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Good morning", style: TextStyle(color: Colors.grey)),
-                        Text("Hi, Emma!", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text("Greetings...!", style: TextStyle(color: Colors.grey)),
+                        Text("${userDetails['name'] ?? ''}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       ],
                     ),
                     GestureDetector(
-                      onDoubleTap: (){
-                        _signOut(context);
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => Dialog(
+                            child: InteractiveViewer( // pinch-to-zoom support
+                              child: Image.asset("assets/images/avatar.jpg"),
+                            ),
+                          ),
+                        );
                       },
                       child: CircleAvatar(
-                        backgroundImage: NetworkImage("https://i.pravatar.cc/150"),
+                        backgroundImage: AssetImage('assets/images/avatar.jpg'),
                       ),
                     )
                   ],
                 ),
                 SizedBox(height: 10),
-                SizedBox(
-                  height: 60,
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                      hintText: "Search destinations, tours...",
-                      prefixIcon: Icon(Icons.search),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text(
+                      "Categories",
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                  ),
+                    // Text("See all",
+                    //     style: TextStyle(color: Colors.blue, fontSize: 14)),
+                  ],
                 ),
-      
-                if (isSearching) _buildSearchResults(),
-      
-                if (!isSearching) _buildHomeContent(),
+                SizedBox(height: 10),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: categories.map((category) {
+                      return categoryItem(category['icon'],category['category'],category['color']);
+                    }).toList(),
+                  )
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "All Tours",
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+                SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: isloading? UiUtils.loadingIndicator() : Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: (categorisedTours.isEmpty)?[SizedBox(height: 50,), Center(child: Text("No tours are available with this category"))]:categorisedTours.map((tour) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: tourCard(tour),
+                      );
+                    }).toList(),
+                  )
+                ),
               ]
             ),
           ),
@@ -92,123 +139,40 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget categoryItem(IconData icon, String label, Color bgColor) {
     return Padding(
       padding:  EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircleAvatar(
-            backgroundColor: bgColor,
-            radius: 22,
-            child: Icon(icon, size: 28, color: Colors.black87),
-          ),
-          const SizedBox(height: 6),
-          Text(label, style: const TextStyle(fontSize: 12)),
-        ],
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            categoryChecked=label;
+            if(label!='Default'){
+              categorisedTours=UiUtils.filterToursByCategory(label);
+              
+            }else{
+              categorisedTours=toursData;
+            }
+          });
+
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 24, // outer avatar radius (border)
+              backgroundColor: (label==categoryChecked)? Colors.black:Colors.transparent, // border color
+              child: CircleAvatar( 
+                backgroundColor: bgColor,
+                radius: 22,
+                child: Icon(icon, size: 28, color: Colors.black87),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(label, style: TextStyle(fontSize: 12, fontWeight: (label==categoryChecked)?FontWeight.bold:FontWeight.normal), ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSearchResults() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            SizedBox(
-              width: 200,
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.filter_list),
-                label: Text("Filter"),
-              ),
-            ),
-            SizedBox(width: 10),
-            SizedBox(
-              width: 200,
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.sort),
-                label: Text("Sort"),
-              ),
-            ),
-            Text("${toursData.length} results", style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-        SizedBox(height: 12),
-      ],
-    );
-  }
-
-  Widget _buildHomeContent() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text(
-              "Categories",
-              style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Text("See all",
-                style: TextStyle(color: Colors.blue, fontSize: 14)),
-          ],
-        ),
-        SizedBox(height: 10),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: categories.map((category) {
-              return categoryItem(category['icon'],category['category'],category['color']);
-            }).toList(),
-          )
-        ),
-        SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text(
-              "Popular Tours",
-              style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Text("See all",
-                style: TextStyle(color: Colors.blue, fontSize: 14)),
-          ],
-        ),
-        SizedBox(height: 12),
-        SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: toursData.map((tour) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12, left: 5, right: 5),
-                child: tourCard(tour),
-              );
-            }).toList(),
-          )
-        ),
-        // SizedBox(
-        //   height: 455,
-        //   child: ListView.builder(
-        //     scrollDirection: Axis.vertical,
-        //     itemCount: toursData.length,
-        //     itemBuilder: (context, index) {
-        //       return Padding(
-        //         padding: const EdgeInsets.only(bottom: 12, left: 5, right: 5),
-        //         child: tourCard(toursData[index]),
-        //       );
-        //     },
-        //   ),
-        // ),
-      ],
-    );
-  }
-
-  Widget tourCard(tour) {
+  Widget tourCard(tourData) {
     return Container(
       height: 260,
       decoration: BoxDecoration(
@@ -229,11 +193,11 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: Image.asset('assets/images/${tour['imageUrl']}',
+                child: Image.asset('assets/images/${tourData['imageUrl']}',
                     height: 160, width: double.infinity, fit: BoxFit.cover),
               ),
               Positioned(
-                right: 10,
+                left: 10,
                 top: 10,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -242,12 +206,26 @@ class _MyHomePageState extends State<MyHomePage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    "${tour["discount"]}% OFF",
+                    "${tourData["discount"]}% OFF",
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
-              )
+              ),
+              Positioned(
+                bottom: 10,
+                right: 10,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text('${tourData["itinerary"].length.toString()} ${(tourData["itinerary"].length > 1)?"Days":"Day"}',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ),
             ],
           ),
           Padding(
@@ -259,7 +237,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(tour["title"],
+                      child: Text(tourData["title"],
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                               softWrap: true,
@@ -271,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         const Icon(Icons.star,
                             size: 16, color: Colors.orangeAccent),
                         const SizedBox(width: 4),
-                        Text(tour["rating"].toString(),
+                        Text(tourData["rating"].toString(),
                             style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
@@ -286,7 +264,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 const Icon(Icons.location_on, size: 16, color: Colors.grey),
                 const SizedBox(width: 2),
-                Text(tour["location"],
+                Text(tourData["location"],
                     style: const TextStyle(color: Colors.grey, fontSize: 13)),
               ],
             ),
@@ -300,9 +278,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: "₹${tour["price"].toString()}",
+                        text: "₹${tourData["price"].toString()}",
                         style: TextStyle(
-                          fontSize: 22,  // bigger size for price
+                          fontSize: 16,  // bigger size for price
                           fontWeight: FontWeight.bold,
                           color: Colors.blue,
                         ),
@@ -328,7 +306,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           borderRadius: BorderRadius.circular(50)),
                     ),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => TourDetailsScreen(tour)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => TourDetailsScreen(tourData)));
                     },
                     child: const Text("Book Now", style: TextStyle( color: Colors.white ,fontWeight: FontWeight.bold),),
                   ),

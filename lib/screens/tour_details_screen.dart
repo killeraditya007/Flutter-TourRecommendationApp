@@ -1,24 +1,56 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tour_recommendation_app/booking_modal.dart';
-import 'package:tour_recommendation_app/calendar_widget.dart';
+import 'package:tour_recommendation_app/screens/modals/booking_modal.dart';
 
 class TourDetailsScreen extends StatefulWidget {
-  final dynamic tour;
-  const TourDetailsScreen(this.tour, {super.key});
+  final dynamic tourData;
+  const TourDetailsScreen(this.tourData, {super.key});
 
   @override
   State<TourDetailsScreen> createState() => _TourDetailsScreenState();
 }
 
 class _TourDetailsScreenState extends State<TourDetailsScreen> {
+  final userId = FirebaseAuth.instance.currentUser?.uid;
   bool isFavorite = false;
   late dynamic tour;
   
   @override
   void initState() {
     super.initState();
-    tour = widget.tour;
+    tour = widget.tourData;
+    checkFavorite();
   }
+
+  void checkFavorite()async{
+    final res = await FirebaseFirestore.instance.collection("users").doc(userId).get();
+    List<dynamic> favList = res.data()?['favorites'];
+    setState(() {
+       favList.contains(tour['tourId'])?isFavorite = true:isFavorite=false;
+    });
+  }
+
+  Future<void> toggleWishlist(String tourID) async {
+
+    await FirebaseFirestore.instance.collection("users").doc(userId).update({
+      "favorites": FieldValue.arrayUnion([tourID]),
+
+    });
+
+    if (isFavorite) {
+      // remove from wishlist
+      await FirebaseFirestore.instance.collection("users").doc(userId).update({
+        "favorites": FieldValue.arrayUnion([tourID]),
+      });
+    } else {
+      // add to wishlist
+      await FirebaseFirestore.instance.collection("users").doc(userId).update({
+        "favorites": FieldValue.arrayRemove([tourID]),
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +71,16 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.favorite_border),
-                onPressed: () {},
+                icon: Icon(
+                  isFavorite? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite? Colors.red : Colors.black,
+                ),
+                onPressed: () {
+                  setState(() {
+                    isFavorite = !isFavorite;
+                  });
+                  toggleWishlist(tour['tourId']);
+                },
               ),
             ],
           ),
@@ -117,7 +157,7 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                           ],
                         ),
                         SizedBox(
-                          height: 265,
+                          height: 330,
                           child: TabBarView(
                             children: [
                               // Overview
@@ -173,7 +213,7 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                     ),
                                     const SizedBox(height: 8),
                                     SizedBox(
-                                      height: 240,
+                                      height: 280,
                                       width: 350,
                                       child: ListView.builder(
                                         itemCount: tour['itinerary'].length,
@@ -285,7 +325,7 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                       ),
                                     ),
                                     SizedBox(
-                                      height: 230,
+                                      height: 280,
                                       child: ListView.builder(
                                         itemCount: tour['reviews'].length,
                                         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -360,7 +400,7 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                       ],
                     ),
                   ),
-                  // const SizedBox(height: 100), // For space above Book Now btn
+  
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -387,25 +427,6 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                             ],
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              builder: (context) => SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.6,
-                                child: TourCalendarWidget(tourDays: 5), // pass tour duration
-                              ),
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.calendar_month_outlined),
-                              Text("Available dates", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
-                              Icon(Icons.arrow_forward_ios, size: 16,)
-                            ],
-                          ),
-                        )
                       ],
                     ),
                   ),
@@ -426,7 +447,7 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                           ),
-                          builder: (context) => BookingModal(tour['price'],tour['itinerary'].length),
+                          builder: (context) => BookingModal(tour),
                         );
                       },
                       child: const Text(
