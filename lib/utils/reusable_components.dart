@@ -60,9 +60,11 @@ class UiUtils {
     }).toList();
   }
 
-  static Future<void> showAlertDialog(BuildContext context, {alertHeading = 'Alert', alertMessage = 'Are you sure?', buttonText1 = 'No', buttonText2 = 'Yes', bookingId = '', uid = ''}) async {
+  static Future<void> showAlertDialog(BuildContext context, {alertHeading = 'Alert', alertMessage = 'Are you sure?', buttonText1 = 'No', buttonText2 = 'Yes', bookingId = '', uid = '', VoidCallback? onConfirm,}) async {
+    print('calling dialog method');
     return showDialog<void>(
       context: context,
+      useRootNavigator: true,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -73,7 +75,8 @@ class UiUtils {
               mainAxisAlignment: MainAxisAlignment.end, // align buttons to right
               children: [
                 SizedBox(
-                  width: 200,
+                  height: 40,
+                  width: 60,
                   child: TextButton(
                     child: Text(buttonText1, style: TextStyle(color: Colors.black),),
                     onPressed: () {
@@ -83,8 +86,8 @@ class UiUtils {
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
-                  height: 30,
-                  width: 220,
+                  height: 40,
+                  width: 120,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
@@ -101,6 +104,7 @@ class UiUtils {
                         await FirebaseUtils.deleteUser();
                       }else if(alertHeading=='Cancel Tour'){
                         await FirebaseUtils.cancelBooking(bookingId, uid);
+                        onConfirm!();
                       }else{
                         print('Invalid call....');
                       }
@@ -114,6 +118,13 @@ class UiUtils {
       },
     );    
   }
+
+  static String getAvatar(String? gender) {
+    if (gender == null || gender.isEmpty) return 'assets/images/avatar.jpg';
+    if (gender.toLowerCase() == 'male') return 'assets/images/avatar_male.jpg';
+    return 'assets/images/avatar_female.jpg';
+  }
+
   
   static void showFlutterToast(message){
     Fluttertoast.showToast(

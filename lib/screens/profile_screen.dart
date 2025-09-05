@@ -35,8 +35,11 @@ class _AccountScreenState extends State<AccountScreen> {
     String gender = genderController.text.trim();
     String phone = phoneController.text.trim();
     String age = ageController.text.trim();
-    await FirebaseUtils.saveUserDetails(name,gender,phone,age,user!,context);
-                        
+    await FirebaseUtils.saveUserDetails(name,gender,phone,age,user!.uid,context);
+    final response = await FirebaseUtils.getUserDetails(user!.uid);
+    setState(() {
+      userDetails = response!;
+    });
   }
 
   void _openEditProfileModal(BuildContext context) {
@@ -207,23 +210,10 @@ class _AccountScreenState extends State<AccountScreen> {
           children: [
             // Profile picture
             Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: AssetImage('assets/images/avatar.jpg')
-                  ),  
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: CircleAvatar(
-                      radius: 16,
-                      backgroundColor: Colors.blue,
-                      child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: AssetImage(UiUtils.getAvatar(userDetails['gender']))
+              ),  
             ),
             const SizedBox(height: 12),
             // Name & Email

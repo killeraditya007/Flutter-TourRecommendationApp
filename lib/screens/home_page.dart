@@ -75,14 +75,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         showDialog(
                           context: context,
                           builder: (_) => Dialog(
-                            child: InteractiveViewer( // pinch-to-zoom support
-                              child: Image.asset("assets/images/avatar.jpg"),
+                            child: InteractiveViewer(
+                              child: Image.asset(UiUtils.getAvatar(userDetails['gender'])),
                             ),
                           ),
                         );
                       },
                       child: CircleAvatar(
-                        backgroundImage: AssetImage('assets/images/avatar.jpg'),
+                        backgroundImage: AssetImage(UiUtils.getAvatar(userDetails['gender'])),
                       ),
                     )
                   ],

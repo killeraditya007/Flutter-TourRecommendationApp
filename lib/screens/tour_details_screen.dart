@@ -343,7 +343,7 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
                                                   Row(
                                                     children: [
                                                       CircleAvatar(
-                                                        backgroundImage: NetworkImage("https://randomuser.me/api/portraits/women/17.jpg"),
+                                                        backgroundImage: tour['reviews'][index]['imageUrl']==null?NetworkImage("https://randomuser.me/api/portraits/women/17.jpg"):NetworkImage(tour['reviews'][index]['imageUrl']),
                                                         radius: 20,
                                                       ),
                                                       const SizedBox(width: 10),

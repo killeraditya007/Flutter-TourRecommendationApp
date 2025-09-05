@@ -33,11 +33,19 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     return Future.wait(toursFutures);
   }
 
-  void cancelBooking(String bookingId)async{
-    UiUtils.showAlertDialog(context, alertHeading: 'Cancel Tour', alertMessage: 'Are you sure you want to cancel the tour?', bookingId: bookingId, uid: uid);
-    setState(() {
-      getBookingsWithTours(uid);
-    });
+  void cancelBooking(String bookingId){
+    UiUtils.showAlertDialog(
+      context, 
+      alertHeading: 'Cancel Tour', 
+      alertMessage: 'Are you sure you want to cancel the tour?', 
+      bookingId: bookingId, 
+      uid: uid,
+      onConfirm: () {
+        setState(() {
+          getBookingsWithTours(uid);
+        });
+        Navigator.pop(context);
+    },);
   }
 
   @override
@@ -301,7 +309,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   ),
                   onPressed: booking['status']=='Upcoming'? () {
                     cancelBooking(booking['bookingId']);
-                    Navigator.pop(context);
                   }:null,
                   child: Text("Cancel", style: TextStyle(color: Colors.white),),
                 )

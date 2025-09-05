@@ -35,9 +35,9 @@ class FirebaseUtils {
     return response.data();
   }
 
-  static Future<void> saveUserDetails(String name, String gender, String phone, String age, User user, context) async {
+  static Future<void> saveUserDetails(String name, String gender, String phone, String age, String uid, context) async {
     try {
-      await FirebaseFirestore.instance.collection("users").doc(user.uid).update({
+      await FirebaseFirestore.instance.collection("users").doc(uid).update({
         "name": name,
         "age": age,
         "phone": phone,
@@ -126,6 +126,7 @@ class FirebaseUtils {
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
         await user.delete();
         UiUtils.showFlutterToast('User deleted successfully');
       } else {
