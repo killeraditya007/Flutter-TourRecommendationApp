@@ -34,7 +34,6 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   void _saveUserDetails() async{
-    // print(_gender.toString().split('.').last);
     String name = nameController.text.trim();
     String gender = _gender.toString().split('.').last;
     String phone = phoneController.text.trim();
