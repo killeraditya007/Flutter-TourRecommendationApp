@@ -13,6 +13,8 @@ class AccountScreen extends StatefulWidget {
   State<AccountScreen> createState() => _AccountScreenState();
 }
 
+enum Genders {male, female, na}
+
 class _AccountScreenState extends State<AccountScreen> {
   final user = FirebaseAuth.instance.currentUser;
   final nameController = TextEditingController();
@@ -20,6 +22,7 @@ class _AccountScreenState extends State<AccountScreen> {
   final phoneController = TextEditingController();
   final ageController = TextEditingController();
   late final emailController = TextEditingController(text: user?.email ?? "");
+  Genders? _gender = Genders.na;
 
   @override
   void initState() {
@@ -31,8 +34,9 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   void _saveUserDetails() async{
+    // print(_gender.toString().split('.').last);
     String name = nameController.text.trim();
-    String gender = genderController.text.trim();
+    String gender = _gender.toString().split('.').last;
     String phone = phoneController.text.trim();
     String age = ageController.text.trim();
     await FirebaseUtils.saveUserDetails(name,gender,phone,age,user!.uid,context);
@@ -42,16 +46,13 @@ class _AccountScreenState extends State<AccountScreen> {
     });
   }
 
-  void _openEditProfileModal(BuildContext context) {
-
+  void _openEditProfileModal() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Padding(
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
           padding: EdgeInsets.only(
             left: 16,
             right: 16,
@@ -100,18 +101,41 @@ class _AccountScreenState extends State<AccountScreen> {
                 ),
               ),
 
-              SizedBox(
-                height: 60,
-                child: TextField(
-                  controller: genderController,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    labelText: "Gender",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
+              RadioGroup<Genders>(
+                groupValue: _gender,
+                onChanged: (Genders? value) {
+                  setModalState(() => _gender = value!);
+                  setState(() {
+                    _gender = value;
+                  });
+                },
+                child: Row(
+                  // crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Text('Gender: '),
+                    SizedBox(
+                      width: 150,
+                      child: const ListTile(
+                        title: Text('Male'),
+                        leading: Radio<Genders>(value: Genders.male),
+                      ),
                     ),
-                  ),
+                    SizedBox(
+                      width: 150,
+                      child: const ListTile(
+                        title: Text('Female'),
+                        leading: Radio<Genders>(value: Genders.female),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 150,
+                      child: const ListTile(
+                        title: Text('N/A'),
+                        leading: Radio<Genders>(value: Genders.na),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -185,6 +209,8 @@ class _AccountScreenState extends State<AccountScreen> {
             ],
           ),
         );
+          },
+        );
       },
     );
   }
@@ -236,7 +262,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   width: 150,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      _openEditProfileModal(context);
+                      _openEditProfileModal();
                     },
                     icon: const Icon(Icons.edit, size: 18, color: Colors.white,),
                     label: const Text("Edit Profile", style: TextStyle(color: Colors.white),),
