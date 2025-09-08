@@ -38,6 +38,7 @@ class _AccountScreenState extends State<AccountScreen> {
         _gender = Genders.female;
       }
     }
+    print(_gender);
   }
 
   void _saveUserDetails() async{
@@ -114,10 +115,12 @@ class _AccountScreenState extends State<AccountScreen> {
               RadioGroup<Genders>(
                 groupValue: _gender,
                 onChanged: (Genders? value) {
-                  setModalState(() => _gender = value!);
+                  setModalState(() => _gender = value);
                   setState(() {
                     _gender = value;
+                    print("value: $value");
                   });
+                  print(_gender);
                 },
                 child: Row(
                   // crossAxisAlignment: CrossAxisAlignment.start,
