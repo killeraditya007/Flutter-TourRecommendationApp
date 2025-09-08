@@ -22,7 +22,7 @@ class _AccountScreenState extends State<AccountScreen> {
   final phoneController = TextEditingController();
   final ageController = TextEditingController();
   late final emailController = TextEditingController(text: user?.email ?? "");
-  Genders? _gender = Genders.na;
+  Genders? _gender;
 
   @override
   void initState() {
@@ -114,8 +114,9 @@ class _AccountScreenState extends State<AccountScreen> {
                   children: <Widget>[
                     Text('Gender: '),
                     SizedBox(
-                      width: 150,
+                      width: 140,
                       child: const ListTile(
+                        horizontalTitleGap: 0,
                         title: Text('Male'),
                         leading: Radio<Genders>(value: Genders.male),
                       ),
@@ -123,15 +124,9 @@ class _AccountScreenState extends State<AccountScreen> {
                     SizedBox(
                       width: 150,
                       child: const ListTile(
+                        horizontalTitleGap: 0,
                         title: Text('Female'),
                         leading: Radio<Genders>(value: Genders.female),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 150,
-                      child: const ListTile(
-                        title: Text('N/A'),
-                        leading: Radio<Genders>(value: Genders.na),
                       ),
                     ),
                   ],
