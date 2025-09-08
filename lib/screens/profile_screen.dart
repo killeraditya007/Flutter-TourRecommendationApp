@@ -31,6 +31,13 @@ class _AccountScreenState extends State<AccountScreen> {
     ageController.text = userDetails['age'];
     phoneController.text = userDetails['phone'];
     genderController.text = userDetails['gender'];
+    if(userDetails['gender']!=''){
+      if(userDetails['gender']=='male'){
+        _gender = Genders.male;
+      }else{
+        _gender = Genders.female;
+      }
+    }
   }
 
   void _saveUserDetails() async{
@@ -48,6 +55,10 @@ class _AccountScreenState extends State<AccountScreen> {
   void _openEditProfileModal() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setModalState) {
