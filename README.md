@@ -1,6 +1,14 @@
 # tour_recommendation_app
 
-A new Flutter project.
+Here is the Tour Recommendation App.
+The Tour Recommendation App helps travelers discover the best destinations, activities, and experiences tailored to their preferences. Whether you’re planning a weekend getaway or a long vacation, the app makes it easier to explore new places with personalized recommendations.
+
+Features
+- Smart Recommendations – Get curated travel destinations based on your interests, budget, and ***location**.
+- Search & Explore – Browse destinations, attractions, and activities with detailed information.
+- Favorites – Save places you’d like to visit and build your travel wishlist.
+- Friendly Interface – Clean, simple, and intuitive design for smooth navigation.
+
 
 ## Getting Started
 
